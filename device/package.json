@@ -1,0 +1,16 @@
+{
+  "name": "https-director-client",
+  "version": "1.0.0",
+  "main": "src/API.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "compression": "^1.8.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "snake-camel": "^1.0.9",
+    "socket.io": "^4.8.1"
+  }
+}

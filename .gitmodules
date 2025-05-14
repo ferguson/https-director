@@ -1,0 +1,6 @@
+[submodule "virtualize"]
+	path = virtualize
+	url = https://github.com/mitmedialab/virtualize
+[submodule "virtualize-node"]
+	path = virtualize-node
+	url = https://github.com/mitmedialab/virtualize-node.git

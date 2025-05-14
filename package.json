@@ -1,0 +1,28 @@
+{
+  "name": "https-direct",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ferguson/https-director.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": "24"
+  },
+  "author": "Jon Ferguson <jon@jef.us>",
+  "description": "Direct IP Addresses and HTTPS Certificates",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "device",
+      "server"
+    ],
+    "nohoist": [
+      "**"
+    ]
+  },
+  "scripts": {
+    "build": "(cd client; yarn build)"
+  }
+}
