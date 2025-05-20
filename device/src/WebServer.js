@@ -41,8 +41,10 @@ export default class WebServer {
         //app.use(compression()); // wondering how much this helps, esp. locally
         this.addRoutes(app);
 
-        let https_server = http.createServer({
-            SNICallback: (servername, callback) => { callback(this.secure_context); },
+        let https_server = https.createServer({
+            cert: cert,
+            key: key,
+            SNICallback: this.handleSNICallback.bind(this)
         });
         //this.https_server = https_server;
         https_server.on('request', app);
@@ -57,7 +59,14 @@ export default class WebServer {
 
 
     setSecureContext(cert, key) {
+        log.log('setting secure context');
         this.secure_context = tls.createSecureContext({ cert, key });
+    }
+
+
+    handleSNICallback(servername, callback) {
+        log.log('SNICallback', servername);
+        callback(null, this.secure_context);
     }
 
 

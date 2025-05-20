@@ -13,7 +13,7 @@ log.debug = ()=>{};
 
 
 export default class MyCertificate {
-    constructor(route53) {
+    constructor(options) {
     }
 
 
@@ -46,9 +46,26 @@ export default class MyCertificate {
             await this.symlinkForce(fullchain_filename, fullchain_link);
             await this.symlinkForce(privkey_filename, privkey_link);
         } catch(err) {
-            log.error('error saving cert+key in', MYCERTIFICATE_DIR);
+            log.error('error saving cert & key in', MYCERTIFICATE_DIR);
             throw err;
         }
+    }
+
+
+    async loadCertificate() {
+        // load the last saved certificate
+        let cert;
+        let key;
+        try {
+            let fullchain_link = path.join(MYCERTIFICATE_DIR, 'fullchain.pem');
+            let privkey_link = path.join(MYCERTIFICATE_DIR, 'privkey.pem');
+            cert = await fsP.readFile(fullchain_link, 'utf8');
+            key = await fsP.readFile(privkey_link, 'utf8');
+        } catch(err) {
+            log.error('error loading cert & key from', MYCERTIFICATE_DIR);
+            throw err;
+        }
+        return [cert, key];
     }
 
 

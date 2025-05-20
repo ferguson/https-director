@@ -1,6 +1,7 @@
 import os from 'node:os';
 //import asyncHandler from 'express-async-handler';
 import { Route53Client,
+         ListResourceRecordSetsCommand,
          ChangeResourceRecordSetsCommand,
          GetChangeCommand
        } from '@aws-sdk/client-route-53';
@@ -24,16 +25,32 @@ export default class Route53 {
     }
 
 
-    async init() {
-    }
-
-
-    addRoutes(app) {
-    }
+    async init() {}
+    addRoutes() {}
 
 
     getSubdomain() {
         return this.subdomain;
+    }
+
+
+    async updateOurIPAddressIfChanged(hostname, ip_address) {
+        let record = await this.getRoute53Record(hostname);
+        let ipchanged = false;
+        if (record) {
+            let current_route53_ip_address = this.getFirstAddressFromRecord(record);
+            if (ip_address === current_route53_ip_address) {
+                log.log(`ip address for ${hostname} has not changed (${ip_address})`);
+            } else {
+                log.log(`ip address for ${hostname} changed to ${ip_address} (was ${current_route53_ip_address})`);
+                ipchanged = true;
+            }
+        }
+        if (!record || ipchanged) {
+            ipchanged = true;
+            await this.updateOurIPAddress(hostname, ip_address);
+        }
+        return ipchanged;
     }
 
 
@@ -48,8 +65,44 @@ export default class Route53 {
     }
 
 
+    async getRoute53Record(hostname) {
+        //let record_name = this.assembleRecordName(hostname);
+        let record_name = `${hostname}.direct.mitlivinglab.org`;  // no trailing dot!
+        let params = {
+            HostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
+            StartRecordName: record_name,
+            StartRecordType: 'A',
+            MaxItems: 20
+        };
+        let command = new ListResourceRecordSetsCommand(params);
+        let response = await this.route53_client.send(command);
+        let record = response.ResourceRecordSets?.[0];
+        if (record && record.ResourceRecords?.length > 1) {
+            log.warn(`warning: ${record_name} has more than one ip address!`);
+        }
+        log.debug(`get dns record for ${hostname}`, record);
+        return record;
+    }
+
+
+    getFirstAddressFromRecord(record) {
+        let ip_address = null;
+        if (record && record.ResourceRecords) {
+            if (record.ResourceRecords.length === 0) {
+                log.warn(`entry for ${record.Name} has no recource records!`);
+            } else {
+                ip_address = record.ResourceRecords[0].Value;
+                if (record.ResourceRecords.length > 1) {
+                    log.warn(`entry for ${record.Name} had more than one recource record!`);
+                }
+            }
+        }
+        return ip_address;
+    }
+
+
     async updateRoute53Record(hostname, ip_address) {
-        let params = this.assembleParams(hostname, ip_address);
+        let params = this.assembleUpsertParams(hostname, ip_address);
         let command = new ChangeResourceRecordSetsCommand(params);
         let response = await this.route53_client.send(command);
         log.log(`updated dns record to ${ip_address}`, response.ChangeInfo);
@@ -71,16 +124,15 @@ export default class Route53 {
         }
 
         if (status === 'INSYNC') {
-            log.log('dns change has propagated across all route 53 name servers');
+            log.log('dns change has propagated across all Route 53 name servers');
         } else {
             log.warn('dns change is still pending after max retries');
         }
     }
 
 
-    assembleParams(hostname, ip_address) {
-        let record_name = `${hostname}.${this.subdomain}.`;  // note the trailing dot
-
+    assembleUpsertParams(hostname, ip_address) {
+        let record_name = this.assembleRecordName(hostname);
         let upsert_action = {
             Action: 'UPSERT',
             ResourceRecordSet: {
@@ -90,7 +142,6 @@ export default class Route53 {
                 ResourceRecords: [{ Value: ip_address }]
             }
         };
-
         let params = {
             HostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
             ChangeBatch: {
@@ -99,12 +150,19 @@ export default class Route53 {
                 ]
             }
         };
-
         return params;
     }
 
 
+    assembleRecordName(hostname, subdomain=null) {
+        subdomain = subdomain || this.subdomain;
+        let record_name = `${hostname}.${subdomain}.`;  // note the trailing dot
+        return record_name;
+    }
+
+
     async setDnsChallenge(record_name, value) {
+        log.log(`updating dns challange for ${record_name}`);
         let command = new ChangeResourceRecordSetsCommand({
             HostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
             ChangeBatch: {
