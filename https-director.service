@@ -1,0 +1,13 @@
+[Unit]
+Description=https-director
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/local/https-director/run-server.sh
+
+[Install]
+WantedBy=multi-user.target
