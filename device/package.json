@@ -1,5 +1,5 @@
 {
-  "name": "https-director-client",
+  "name": "https-director-device",
   "version": "1.0.0",
   "main": "src/API.js",
   "type": "module",

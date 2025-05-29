@@ -10,7 +10,7 @@ import * as socket_io from 'socket.io';
 import cookieParser from 'cookie-parser';
 //import asyncHandler from 'express-async-handler';
 
-const log = Object.assign({}, console);
+const log = { ...console };
 //log.debug = ()=>{};
 
 import { fileURLToPath } from 'url';
@@ -21,15 +21,21 @@ const DEFAULT_CERTIFICATE_DIR  = __dirname + '/../data/mycertificate';
 
 
 export default class WebServer {
-    constructor(options) {
-        this.options = Object.assign({}, options);
+    constructor(options, app=null) {
+        this.options = { ...options };
+        this.app = app;
     }
 
 
     async init(cert, key) {
         this.setSecureContext(cert, key);
-        let app = express();
-        //this.app = app;
+        if (!this.app) {
+            log.debug('creating express app');
+            this.app = express();
+        } else {
+            log.debug('using provided express app');
+        }
+        let app = this.app;
 
         this.cookie_parser = cookieParser();
         // let io_opts = { transports: ['websocket'] };  // websockets only, no long poll
@@ -71,6 +77,11 @@ export default class WebServer {
 
 
     addRoutes(app) {
+        app.use((req, res, next) => {
+            log.log('req.path', req.path);
+            next();
+        });
+        log.log('STATIC_DIR', STATIC_DIR);
         app.use(express.static(STATIC_DIR));
     }
 

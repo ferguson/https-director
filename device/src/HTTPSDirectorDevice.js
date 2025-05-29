@@ -1,7 +1,6 @@
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import path, { dirname } from 'node:path';
-import WebServer from './WebServer.js';
 import MyCertificate from './MyCertificate.js';
 import { fetchPostJSON } from './fetching.js';
 
@@ -12,16 +11,16 @@ const log = Object.assign({}, console);
 
 
 export default class HTTPSDirectorDevice {
-    constructor(options) {
+    constructor(options, webServer=null) {
         if (!options.server) throw new Error('server is required');
         this.options = options;
         this.server_url = options.server;
         this.myCertificate = new MyCertificate(options);
-        this.web_server = new WebServer(options);
+        this.webServer = webServer;
     }
 
 
-    async init(hostname=null, ip_address=null) {
+    async init(hostname=null, ip_address=null, app=null) {
         this.hostname = hostname || this.getHostname();
         this.ip_address = ip_address || this.getLocalIPAddress();
         log.debug(`HTTPSDirectorDevice hostname ${this.hostname} ip_address ${this.ip_address}`);
@@ -30,7 +29,9 @@ export default class HTTPSDirectorDevice {
         let [cert, key] = await this.requestAndMaybeSaveCertificate();
         log.log('certificate and dns name updated');
 
-        await this.web_server.init(cert, key);
+        if (this.webServer) {
+            await this.webServer.init(cert, key, app);
+        }
     }
 
 

@@ -1,4 +1,4 @@
-import { HTTPSDirectorDevice } from './API.js';
+import { HTTPSDirectorDevice, WebServer } from './API.js';
 import parseArgs from '../../server/src/parseArgs.js';
 
 const log = console;
@@ -10,6 +10,7 @@ const usage = `
   --redirect-http  - redirect port 80 to port 443 (or --port)
   --redirect-port  - change port for redirector to listen on (default 80)
 `;
+//   --devicename <name>   - unique device name to use (defaults to hostname)
 
 const defaults = {
     '--port': 443,
@@ -33,7 +34,8 @@ const environment = {
 export default async function main(argv) {
     let options = parseArgs(argv, usage, defaults, environment);
     log.log('options', options);
-    let director = new HTTPSDirectorDevice(options);
+    let webServer = new WebServer(options);
+    let director = new HTTPSDirectorDevice(options, webServer);
     await director.init();
     log.debug('local director device ready');
 }
