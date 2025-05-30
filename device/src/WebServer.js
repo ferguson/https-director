@@ -16,7 +16,7 @@ const log = { ...console };
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const STATIC_DIR = process.env.HTTPS_REFLECTOR_PUBLIC_STATIC_DIR || __dirname + '/../static';
+const STATIC_DIR = process.env.HTTPS_DIRECTOR_DEVICE_STATIC_DIR || __dirname + '/../static';
 const DEFAULT_CERTIFICATE_DIR  = __dirname + '/../data/mycertificate';
 
 
@@ -81,8 +81,10 @@ export default class WebServer {
             log.log('req.path', req.path);
             next();
         });
-        log.log('STATIC_DIR', STATIC_DIR);
-        app.use(express.static(STATIC_DIR));
+	if (!this.options.nostatic) {
+            log.log('STATIC_DIR', STATIC_DIR);
+            app.use(express.static(STATIC_DIR));
+	}
     }
 
 

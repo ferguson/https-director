@@ -7,6 +7,7 @@ const usage = `
   --server <url>   - https director server url (required)
   --port <port>    - override the default port (443)
   --bind           - the ip address to bind to (default 0.0.0.0)
+  --nostatic       - don't try to serve the files in static/ 
   --redirect-http  - redirect port 80 to port 443 (or --port)
   --redirect-port  - change port for redirector to listen on (default 80)
 `;

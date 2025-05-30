@@ -13,9 +13,9 @@ const log = Object.assign({}, console);
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const STATIC_DIR = process.env.HTTPS_REFLECTOR_PUBLIC_STATIC_DIR || __dirname + '/../static';
+const STATIC_DIR = process.env.HTTPS_DIRECTOR_PUBLIC_STATIC_DIR || __dirname + '/../static';
 
-//const DEFAULT_CERTIFICATE_DIR  = '/etc/letsencrypt/live/some-https-reflector-server.org';
+//const DEFAULT_CERTIFICATE_DIR  = '/etc/letsencrypt/live/some-https-director-server.org';
 //     //private_key_file: DEFAULT_CERTIFICATE_DIR + '/privkey.pem',
 //     //certificate_file: DEFAULT_CERTIFICATE_DIR + '/cert.pem',
 //     //authority_file:   DEFAULT_CERTIFICATE_DIR + '/chain.pem',
