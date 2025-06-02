@@ -81,10 +81,10 @@ export default class WebServer {
             log.log('req.path', req.path);
             next();
         });
-	if (!this.options.nostatic) {
+        if (!this.options.nostatic) {
             log.log('STATIC_DIR', STATIC_DIR);
             app.use(express.static(STATIC_DIR));
-	}
+        }
     }
 
 
