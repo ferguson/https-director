@@ -29,9 +29,11 @@ export default class HTTPSDirectorDevice {
         let [cert, key] = await this.requestAndMaybeSaveCertificate();
         log.log('certificate and dns name updated');
 
+	let https_server = null;
         if (this.webServer) {
-            await this.webServer.init(cert, key, app);
+            https_server = await this.webServer.init(cert, key, app);
         }
+	return https_server;
     }
 
 
