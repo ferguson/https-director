@@ -42,7 +42,7 @@ export default class WebServer {
         // let io = new socket_io.Server(this.http_server, io_opts);
 
         app.use(cors({origin: '*'}));
-        app.use(bodyParser.json());
+        //app.use(bodyParser.json());  // no! messes up proxy POST requests. need to filter out for /api path?
         app.use(this.cookie_parser);
         //app.use(compression()); // wondering how much this helps, esp. locally
         this.addRoutes(app);
