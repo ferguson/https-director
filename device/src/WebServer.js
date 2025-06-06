@@ -41,7 +41,17 @@ export default class WebServer {
         // let io_opts = { transports: ['websocket'] };  // websockets only, no long poll
         // let io = new socket_io.Server(this.http_server, io_opts);
 
-        app.use(cors({origin: '*'}));
+//        app.use(cors({origin: '*', credentials: true}));
+//app.use('/', function (req, res, next) {
+//  if (req.headers["access-control-request-private-network"]) {
+//    res.setHeader("access-control-allow-private-network", "true");
+//  }
+//  next(null);
+//});
+////                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+////                "Access-Control-Allow-Headers": "*",
+////                "Access-Control-Allow-Credentials": "true",
+////                "Access-Control-Allow-Private-Network": "true",
         //app.use(bodyParser.json());  // no! messes up proxy POST requests. need to filter out for /api path?
         app.use(this.cookie_parser);
         //app.use(compression()); // wondering how much this helps, esp. locally
